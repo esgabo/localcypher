@@ -1,48 +1,206 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <meta charset="utf-8">
-      <title>Web AES PBKDF2 cipher</title>
-      <link href="https://unpkg.com/@tailwindcss/forms@0.3.2/dist/forms.min.css" rel="stylesheet">
-      <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-   </head>
-   <body>
-      <main>
-         <div class="lg:grid lg:grid-cols-12 lg:gap-x-5">
-            <aside class="py-6 px-2 sm:px-6 lg:py-0 lg:px-0 lg:col-span-3">
-               <nav class="space-y-1">
-                  <a href="/encrypt.html" class="text-gray-900 hover:text-gray-900 hover:bg-gray-50 group rounded-md px-3 py-2 flex items-center text-sm font-medium">
-                     <!-- Heroicon name: outline/key -->
-                     <svg class="text-gray-400 group-hover:text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                     </svg>
-                     <span class="truncate">
-                     Encrypt
-                     </span>
-                  </a>
-                  <a href="/decrypt.html" class="text-gray-900 hover:text-gray-900 hover:bg-gray-50 group rounded-md px-3 py-2 flex items-center text-sm font-medium">
-                     <!-- Heroicon name: outline/document-text -->
-                     <svg class="text-gray-400 group-hover:text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                     </svg>
-                     <span class="truncate">
-                     Decrypt
-                     </span>
-                  </a>
-               </nav>
-            </aside>
-            <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
-               <div class="shadow sm:rounded-md sm:overflow-hidden">
-                  <div class="bg-white py-6 px-4 space-y-6 sm:p-6">
-                     <div>
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">Web AES PBKDF2 cipher</h3>
-                        <p class="mt-1 text-sm text-gray-500">Based on <a href="https://github.com/mdn/dom-examples/tree/master/web-crypto/derive-key" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">Web Crypto API example </a>.</p>
-                        <p class="mt-1 text-sm text-gray-500">Source on <a href="https://github.com/esgabo/pbkdf2" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">GitHub</a>.</p>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </main>
-   </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Argon2id Backup Cipher</title>
+  <link href="https://unpkg.com/@tailwindcss/forms@0.3.2/dist/forms.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .tab-btn.active { background:#4f46e5; color:#fff; }
+    .cut-line { border-top:2px dashed #cbd5e1; position:relative; }
+    .cut-line::before { content:"\2702"; position:absolute; left:8px; top:-12px; background:#fff; padding:0 6px; color:#94a3b8; }
+    @media print {
+      body * { visibility:hidden; }
+      #print-sheet, #print-sheet * { visibility:visible; }
+      #print-sheet { position:absolute; inset:0; display:block !important; }
+      .no-print { display:none !important; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <main class="max-w-3xl mx-auto p-4 sm:p-6">
+    <div class="bg-white shadow rounded-md overflow-hidden no-print">
+      <div class="px-6 pt-6">
+        <h1 class="text-xl font-semibold text-gray-900">Argon2id Backup Cipher</h1>
+        <p class="text-sm text-gray-500 mt-1">Encrypt a secret locally, print it as a backup, recover it later by scanning or pasting.</p>
+        <div class="mt-4 flex gap-2">
+          <button id="tab-encrypt" class="tab-btn active rounded-t-md px-4 py-2 text-sm font-medium bg-gray-200 text-gray-700">Encrypt</button>
+          <button id="tab-decrypt" class="tab-btn rounded-t-md px-4 py-2 text-sm font-medium bg-gray-200 text-gray-700">Decrypt</button>
+        </div>
+      </div>
+
+      <!-- ENCRYPT PANEL -->
+      <section id="panel-encrypt" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Message</label>
+          <textarea id="enc-input" rows="3" class="mt-1 block w-full rounded-md border-gray-300 p-2 sm:text-sm"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Passphrase</label>
+          <div class="mt-1 flex gap-2">
+            <input id="enc-pass" type="text" class="block w-full rounded-md border-gray-300 sm:text-sm">
+            <button id="gen-pass" class="shrink-0 rounded-md bg-indigo-50 text-indigo-700 px-3 py-2 text-sm font-medium">Generate</button>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">Generated passphrases use the EFF diceware list. Store the passphrase separately from the printed data.</p>
+        </div>
+        <details class="text-sm">
+          <summary class="cursor-pointer text-indigo-600 font-medium">Advanced (Argon2id parameters)</summary>
+          <div class="grid grid-cols-3 gap-3 mt-2">
+            <label class="block">Memory (KiB)<input id="adv-m" type="number" value="19456" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></label>
+            <label class="block">Time<input id="adv-t" type="number" value="2" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></label>
+            <label class="block">Parallelism<input id="adv-p" type="number" value="1" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></label>
+          </div>
+        </details>
+        <button id="encrypt-btn" class="rounded-md bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">Encrypt</button>
+
+        <div id="enc-result" class="hidden border-t pt-4 space-y-3">
+          <div><span class="text-xs font-medium text-gray-500">Ciphertext</span><p id="out-ct" class="text-sm text-gray-900 break-all"></p></div>
+          <div><span class="text-xs font-medium text-gray-500">Salt</span><p id="out-salt" class="text-sm text-gray-900 break-all"></p></div>
+          <div><span class="text-xs font-medium text-gray-500">IV</span><p id="out-iv" class="text-sm text-gray-900 break-all"></p></div>
+          <div id="enc-qr"></div>
+          <button id="print-btn" class="rounded-md bg-gray-800 text-white px-4 py-2 text-sm font-medium">Print backup</button>
+        </div>
+      </section>
+
+      <!-- DECRYPT PANEL -->
+      <section id="panel-decrypt" class="p-6 space-y-4 hidden">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Paste backup (bk1…)</label>
+          <textarea id="dec-blob" rows="2" class="mt-1 block w-full rounded-md border-gray-300 p-2 sm:text-sm" placeholder="bk1...."></textarea>
+          <p class="text-xs text-gray-500 mt-1">Pasting a backup fills the fields below automatically.</p>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <label class="block text-sm">Memory<input id="dec-m" type="number" value="19456" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></label>
+          <label class="block text-sm">Time<input id="dec-t" type="number" value="2" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></label>
+          <label class="block text-sm">Parallelism<input id="dec-p" type="number" value="1" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></label>
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700">Salt</label><input id="dec-salt" type="text" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></div>
+        <div><label class="block text-sm font-medium text-gray-700">IV</label><input id="dec-iv" type="text" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></div>
+        <div><label class="block text-sm font-medium text-gray-700">Ciphertext</label><textarea id="dec-ct" rows="2" class="mt-1 block w-full rounded-md border-gray-300 p-2 sm:text-sm"></textarea></div>
+        <div><label class="block text-sm font-medium text-gray-700">Passphrase</label><input id="dec-pass" type="text" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></div>
+        <button id="decrypt-btn" class="rounded-md bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">Decrypt</button>
+        <div><span class="text-xs font-medium text-gray-500">Message</span><p id="dec-out" class="text-sm text-gray-900 break-all"></p></div>
+      </section>
+    </div>
+
+    <!-- PRINT SHEET -->
+    <div id="print-sheet" class="hidden bg-white max-w-xl mx-auto mt-6 border rounded-md p-6 font-mono text-sm">
+      <div class="flex justify-between items-start font-sans">
+        <div><h2 class="text-base font-semibold">Encrypted Backup</h2><p class="text-xs text-gray-400">argon2id + AES-GCM · format v1</p></div>
+        <span class="text-xs font-bold text-indigo-700 bg-indigo-50 rounded px-2 py-1">ID <span id="ps-id"></span></span>
+      </div>
+      <div class="flex gap-4 mt-4">
+        <div class="flex-1 leading-relaxed break-all">
+          <div><span class="text-gray-400">algorithm</span> argon2id</div>
+          <div><span class="text-gray-400">params</span> <span id="ps-params"></span></div>
+          <div><span class="text-gray-400">salt</span> <span id="ps-salt"></span></div>
+          <div><span class="text-gray-400">iv</span> <span id="ps-iv"></span></div>
+          <div><span class="text-gray-400">ciphertext</span> <span id="ps-ct"></span></div>
+        </div>
+        <div><div id="ps-qr"></div><p class="text-[9px] text-gray-400 text-center mt-1 font-sans">scan → paste to decrypt</p></div>
+      </div>
+      <div class="cut-line my-6"></div>
+      <div class="flex justify-between items-center font-sans">
+        <span class="text-sm font-semibold text-gray-700">Passphrase</span>
+        <span class="text-xs font-bold text-indigo-700 bg-indigo-50 rounded px-2 py-1">ID <span id="ps-id2"></span></span>
+      </div>
+      <p id="ps-pass" class="text-base font-bold mt-2 break-all"></p>
+      <p class="font-sans text-xs text-red-800 bg-red-50 border border-red-200 rounded p-2 mt-3">
+        <strong>⚠ Store this half separately</strong> from the encrypted data above. Anyone with both can read your secret. Match the <strong>ID</strong> to pair them later.
+      </p>
+    </div>
+  </main>
+
+  <script src="./assets/js/hex.js"></script>
+  <script src="./assets/js/blob.js"></script>
+  <script src="./assets/js/diceware.js"></script>
+  <script src="./assets/js/vendor/hash-wasm-argon2.umd.min.js"></script>
+  <script src="./assets/js/vendor/qrcode.min.js"></script>
+  <script src="./assets/js/cipher.js"></script>
+  <script>
+    var lastBlob = null, lastEnc = null;
+
+    function show(panel) {
+      document.getElementById('panel-encrypt').classList.toggle('hidden', panel !== 'encrypt');
+      document.getElementById('panel-decrypt').classList.toggle('hidden', panel !== 'decrypt');
+      document.getElementById('tab-encrypt').classList.toggle('active', panel === 'encrypt');
+      document.getElementById('tab-decrypt').classList.toggle('active', panel === 'decrypt');
+    }
+    document.getElementById('tab-encrypt').onclick = function () { show('encrypt'); };
+    document.getElementById('tab-decrypt').onclick = function () { show('decrypt'); };
+
+    function renderQr(elId, text) {
+      var el = document.getElementById(elId); el.innerHTML = '';
+      var qr = qrcode(0, 'M'); qr.addData(text); qr.make();
+      el.innerHTML = qr.createImgTag(4);
+    }
+
+    document.getElementById('gen-pass').onclick = function () {
+      document.getElementById('enc-pass').value = generatePassphrase(5);
+    };
+
+    document.getElementById('encrypt-btn').onclick = async function () {
+      var msg = document.getElementById('enc-input').value;
+      var pass = document.getElementById('enc-pass').value;
+      if (!msg || !pass) { alert('Enter a message and a passphrase'); return; }
+      var params = {
+        m: parseInt(document.getElementById('adv-m').value, 10),
+        t: parseInt(document.getElementById('adv-t').value, 10),
+        p: parseInt(document.getElementById('adv-p').value, 10)
+      };
+      lastEnc = await cipher.encrypt(msg, pass, params);
+      lastBlob = lastEnc.blob;
+      document.getElementById('out-ct').textContent = formatHexString(lastEnc.ct);
+      document.getElementById('out-salt').textContent = formatHexString(lastEnc.salt);
+      document.getElementById('out-iv').textContent = formatHexString(lastEnc.iv);
+      renderQr('enc-qr', lastBlob);
+      document.getElementById('enc-result').classList.remove('hidden');
+    };
+
+    document.getElementById('print-btn').onclick = function () {
+      if (!lastEnc) return;
+      document.getElementById('ps-id').textContent = lastEnc.id;
+      document.getElementById('ps-id2').textContent = lastEnc.id;
+      document.getElementById('ps-params').textContent = 'm=' + lastEnc.params.m + ', t=' + lastEnc.params.t + ', p=' + lastEnc.params.p;
+      document.getElementById('ps-salt').textContent = lastEnc.salt;
+      document.getElementById('ps-iv').textContent = lastEnc.iv;
+      document.getElementById('ps-ct').textContent = lastEnc.ct;
+      document.getElementById('ps-pass').textContent = document.getElementById('enc-pass').value;
+      renderQr('ps-qr', lastBlob);
+      document.getElementById('print-sheet').classList.remove('hidden');
+      window.print();
+    };
+
+    document.getElementById('dec-blob').addEventListener('input', function () {
+      var v = this.value.trim();
+      if (v.slice(0, 4) !== 'bk1.') return;
+      try {
+        var f = decodeBlob(v);
+        document.getElementById('dec-m').value = f.m;
+        document.getElementById('dec-t').value = f.t;
+        document.getElementById('dec-p').value = f.p;
+        document.getElementById('dec-salt').value = formatHexString(f.salt);
+        document.getElementById('dec-iv').value = formatHexString(f.iv);
+        document.getElementById('dec-ct').value = formatHexString(f.ct);
+      } catch (e) { /* ignore until valid */ }
+    });
+
+    document.getElementById('decrypt-btn').onclick = async function () {
+      var pass = document.getElementById('dec-pass').value;
+      var fields = {
+        kdf: 'argon2id',
+        m: parseInt(document.getElementById('dec-m').value, 10),
+        t: parseInt(document.getElementById('dec-t').value, 10),
+        p: parseInt(document.getElementById('dec-p').value, 10),
+        salt: unformatHexString(document.getElementById('dec-salt').value),
+        iv: unformatHexString(document.getElementById('dec-iv').value),
+        ct: unformatHexString(document.getElementById('dec-ct').value)
+      };
+      if (!pass || !fields.ct) { alert('Enter a backup/ciphertext and a passphrase'); return; }
+      var res = await cipher.decrypt(fields, pass);
+      document.getElementById('dec-out').textContent = res.error ? 'Decryption failed' : res.output;
+    };
+  </script>
+</body>
 </html>
