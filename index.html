@@ -56,8 +56,10 @@
 
         <div id="enc-result" class="hidden border-t pt-4 space-y-3">
           <div><span class="text-xs font-medium text-gray-500">Ciphertext</span><p id="out-ct" class="text-sm text-gray-900 break-all"></p></div>
-          <div><span class="text-xs font-medium text-gray-500">Salt</span><p id="out-salt" class="text-sm text-gray-900 break-all"></p></div>
-          <div><span class="text-xs font-medium text-gray-500">IV</span><p id="out-iv" class="text-sm text-gray-900 break-all"></p></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><span class="text-xs font-medium text-gray-500">Salt</span><p id="out-salt" class="text-sm text-gray-900 break-all"></p></div>
+            <div><span class="text-xs font-medium text-gray-500">IV</span><p id="out-iv" class="text-sm text-gray-900 break-all"></p></div>
+          </div>
           <div id="enc-qr"></div>
           <button id="print-btn" class="rounded-md bg-gray-800 text-white px-4 py-2 text-sm font-medium">Print backup</button>
         </div>
@@ -65,18 +67,19 @@
 
       <!-- DECRYPT PANEL -->
       <section id="panel-decrypt" class="p-6 space-y-4 hidden">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Paste backup (bk1…)</label>
-          <textarea id="dec-blob" rows="2" class="mt-1 block w-full rounded-md border-gray-300 p-2 sm:text-sm" placeholder="bk1...."></textarea>
-          <p class="text-xs text-gray-500 mt-1">Pasting a backup fills the fields below automatically.</p>
+        <div class="flex gap-2">
+          <button id="capture-btn" class="flex-1 rounded-md bg-indigo-600 text-white px-3 py-2 text-sm font-medium hover:bg-indigo-700">Capture Payload</button>
+          <button id="paste-btn" class="flex-1 rounded-md bg-indigo-50 text-indigo-700 px-3 py-2 text-sm font-medium hover:bg-indigo-100">Paste Payload</button>
         </div>
         <div class="grid grid-cols-3 gap-3">
           <label class="block text-sm">Memory<input id="dec-m" type="number" value="19456" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></label>
           <label class="block text-sm">Time<input id="dec-t" type="number" value="2" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></label>
           <label class="block text-sm">Parallelism<input id="dec-p" type="number" value="1" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></label>
         </div>
-        <div><label class="block text-sm font-medium text-gray-700">Salt</label><input id="dec-salt" type="text" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></div>
-        <div><label class="block text-sm font-medium text-gray-700">IV</label><input id="dec-iv" type="text" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-sm font-medium text-gray-700">Salt</label><input id="dec-salt" type="text" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></div>
+          <div><label class="block text-sm font-medium text-gray-700">IV</label><input id="dec-iv" type="text" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></div>
+        </div>
         <div><label class="block text-sm font-medium text-gray-700">Ciphertext</label><textarea id="dec-ct" rows="2" class="mt-1 block w-full rounded-md border-gray-300 p-2 sm:text-sm"></textarea></div>
         <div><label class="block text-sm font-medium text-gray-700">Passphrase</label><input id="dec-pass" type="text" class="mt-1 block w-full rounded-md border-gray-300 sm:text-sm"></div>
         <button id="decrypt-btn" class="rounded-md bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">Decrypt</button>
@@ -112,6 +115,33 @@
     </div>
   </main>
 
+  <!-- CAMERA MODAL -->
+  <div id="modal-camera" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-5 w-full max-w-sm">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-semibold text-gray-900">Capture Payload</h3>
+        <button id="camera-close" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+      </div>
+      <video id="camera-video" class="w-full rounded-md bg-black" autoplay playsinline muted></video>
+      <p id="camera-status" class="text-xs text-gray-500 mt-2 text-center">Point camera at the QR code</p>
+    </div>
+  </div>
+
+  <!-- PASTE MODAL -->
+  <div id="modal-paste" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-5 w-full max-w-sm">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-semibold text-gray-900">Paste Payload</h3>
+        <button id="paste-close" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+      </div>
+      <textarea id="modal-blob" rows="4" class="block w-full rounded-md border-gray-300 p-2 text-sm font-mono" placeholder="bk1...."></textarea>
+      <div class="flex justify-end gap-2 mt-3">
+        <button id="paste-cancel" class="px-3 py-2 text-sm text-gray-600 rounded-md hover:bg-gray-100">Cancel</button>
+        <button id="paste-apply" class="px-3 py-2 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700">Apply</button>
+      </div>
+    </div>
+  </div>
+
   <script src="./assets/js/hex.js"></script>
   <script src="./assets/js/blob.js"></script>
   <script src="./assets/js/diceware.js"></script>
@@ -126,6 +156,10 @@
       document.getElementById('panel-decrypt').classList.toggle('hidden', panel !== 'decrypt');
       document.getElementById('tab-encrypt').classList.toggle('active', panel === 'encrypt');
       document.getElementById('tab-decrypt').classList.toggle('active', panel === 'decrypt');
+      if (panel === 'decrypt') {
+        document.getElementById('enc-result').classList.add('hidden');
+        document.getElementById('print-sheet').classList.add('hidden');
+      }
     }
     document.getElementById('tab-encrypt').onclick = function () { show('encrypt'); };
     document.getElementById('tab-decrypt').onclick = function () { show('decrypt'); };
@@ -134,6 +168,21 @@
       var el = document.getElementById(elId); el.innerHTML = '';
       var qr = qrcode(0, 'M'); qr.addData(text); qr.make();
       el.innerHTML = qr.createImgTag(4);
+    }
+
+    function applyBlob(val) {
+      val = val.trim();
+      if (val.slice(0, 4) !== 'bk1.') return false;
+      try {
+        var f = decodeBlob(val);
+        document.getElementById('dec-m').value = f.m;
+        document.getElementById('dec-t').value = f.t;
+        document.getElementById('dec-p').value = f.p;
+        document.getElementById('dec-salt').value = formatHexString(f.salt);
+        document.getElementById('dec-iv').value = formatHexString(f.iv);
+        document.getElementById('dec-ct').value = formatHexString(f.ct);
+        return true;
+      } catch (e) { return false; }
     }
 
     document.getElementById('gen-pass').onclick = function () {
@@ -172,21 +221,68 @@
       window.print();
     };
 
-    document.getElementById('dec-blob').addEventListener('input', function () {
-      var v = this.value.trim();
-      if (v.slice(0, 4) !== 'bk1.') return;
-      try {
-        var f = decodeBlob(v);
-        document.getElementById('dec-m').value = f.m;
-        document.getElementById('dec-t').value = f.t;
-        document.getElementById('dec-p').value = f.p;
-        document.getElementById('dec-salt').value = formatHexString(f.salt);
-        document.getElementById('dec-iv').value = formatHexString(f.iv);
-        document.getElementById('dec-ct').value = formatHexString(f.ct);
-      } catch (e) { /* ignore until valid */ }
+    // --- Camera (Capture Payload) ---
+    var cameraStream = null, cameraDetecting = false;
+
+    function stopCamera() {
+      cameraDetecting = false;
+      if (cameraStream) { cameraStream.getTracks().forEach(function (t) { t.stop(); }); cameraStream = null; }
+      document.getElementById('camera-video').srcObject = null;
+      document.getElementById('modal-camera').classList.add('hidden');
+    }
+
+    document.getElementById('capture-btn').onclick = function () {
+      if (!window.BarcodeDetector) {
+        alert('QR scanning is not supported in this browser. Use "Paste Payload" instead.');
+        return;
+      }
+      document.getElementById('camera-status').textContent = 'Point camera at the QR code';
+      document.getElementById('modal-camera').classList.remove('hidden');
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (stream) {
+        cameraStream = stream;
+        var video = document.getElementById('camera-video');
+        video.srcObject = stream;
+        var detector = new BarcodeDetector({ formats: ['qr_code'] });
+        cameraDetecting = true;
+        function tick() {
+          if (!cameraDetecting) return;
+          detector.detect(video).then(function (codes) {
+            if (!cameraDetecting) return;
+            for (var i = 0; i < codes.length; i++) {
+              if (applyBlob(codes[i].rawValue)) { stopCamera(); return; }
+            }
+            requestAnimationFrame(tick);
+          }).catch(function () { if (cameraDetecting) requestAnimationFrame(tick); });
+        }
+        video.onloadedmetadata = function () { requestAnimationFrame(tick); };
+      }).catch(function (e) {
+        document.getElementById('camera-status').textContent = 'Camera access denied: ' + e.message;
+      });
+    };
+    document.getElementById('camera-close').onclick = stopCamera;
+
+    // --- Paste modal (Paste Payload) ---
+    document.getElementById('paste-btn').onclick = function () {
+      document.getElementById('modal-blob').value = '';
+      document.getElementById('modal-paste').classList.remove('hidden');
+      document.getElementById('modal-blob').focus();
+    };
+    function closePaste() { document.getElementById('modal-paste').classList.add('hidden'); }
+    document.getElementById('paste-close').onclick = closePaste;
+    document.getElementById('paste-cancel').onclick = closePaste;
+    document.getElementById('paste-apply').onclick = function () {
+      if (applyBlob(document.getElementById('modal-blob').value)) {
+        closePaste();
+      } else {
+        alert('Invalid payload — expected a bk1.\u2026 backup string.');
+      }
+    };
+    document.getElementById('modal-blob').addEventListener('input', function () {
+      if (applyBlob(this.value)) closePaste();
     });
 
-    document.getElementById('decrypt-btn').onclick = async function () {
+    // --- Decrypt ---
+    function runDecrypt() {
       var pass = document.getElementById('dec-pass').value;
       var fields = {
         kdf: 'argon2id',
@@ -198,9 +294,15 @@
         ct: unformatHexString(document.getElementById('dec-ct').value)
       };
       if (!pass || !fields.ct) { alert('Enter a backup/ciphertext and a passphrase'); return; }
-      var res = await cipher.decrypt(fields, pass);
-      document.getElementById('dec-out').textContent = res.error ? 'Decryption failed' : res.output;
-    };
+      cipher.decrypt(fields, pass).then(function (res) {
+        document.getElementById('dec-out').textContent = res.error ? 'Decryption failed' : res.output;
+      });
+    }
+
+    document.getElementById('decrypt-btn').onclick = runDecrypt;
+    document.getElementById('dec-pass').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') runDecrypt();
+    });
   </script>
 </body>
 </html>
