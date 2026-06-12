@@ -1,11 +1,8 @@
-# pbkdf2
+# Localcypher
 
 A simple, fully client-side web tool for encrypting a secret and **printing it as
 a physical backup**, then recovering it later by scanning or pasting it back and
 decrypting with a passphrase.
-
-> Note: the project keeps its original `pbkdf2` name, but it now uses **Argon2id**
-> (a memory-hard KDF) instead of PBKDF2.
 
 ## Purpose
 
