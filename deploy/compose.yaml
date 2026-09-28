@@ -1,0 +1,8 @@
+# Runtime definition for apps.lan (codepilot-cl/homelab#34), deployed by the
+# compose-deploy step in .woodpecker.yml. No env: app.env is rendered empty.
+services:
+  web:
+    image: ${IMAGE}:${IMAGE_TAG}
+    ports: ["${HOST_PORT}:80"]
+    env_file: app.env
+    restart: unless-stopped

@@ -1,0 +1,10 @@
+.git
+.gitignore
+.dockerignore
+.superpowers
+.woodpecker.yml
+Dockerfile
+deploy
+docs
+tests
+README.md

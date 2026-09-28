@@ -1,0 +1,25 @@
+# Build + deploy to apps.lan (codepilot-cl/homelab#34). Static site, no env.
+when:
+  - event: push
+    branch: main
+
+steps:
+  build-and-push:
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      registry: docker-registry.hlab.codepilot.cl
+      repo: docker-registry.hlab.codepilot.cl/localcypher
+      tags: [latest, "${CI_COMMIT_SHA}"]
+
+  deploy-apps:
+    image: docker-registry.hlab.codepilot.cl/compose-deploy:2
+    environment:
+      APP_NAME: localcypher
+      IMAGE: docker-registry.hlab.codepilot.cl/localcypher
+      IMAGE_TAG: ${CI_COMMIT_SHA}
+      HOST_PORT: "8104"
+      DEPLOY_HOST: apps.lan
+      DEPLOY_SSH_KEY:
+        from_secret: DEPLOY_SSH_KEY
+      DEPLOY_KNOWN_HOSTS:
+        from_secret: DEPLOY_KNOWN_HOSTS
