@@ -16,9 +16,9 @@ steps:
       tags: [latest, "${CI_COMMIT_SHA}"]
 
   deploy-apps:
-    # compose-deploy:3, pinned by digest (homelab#55): a registry write must not be able to
+    # compose-deploy:4, pinned by digest (homelab#55): a registry write must not be able to
     # swap the image that holds the deploy secrets.
-    image: docker-registry.hlab.codepilot.cl/compose-deploy@sha256:10c10734961b828752cb8becc55c2bdd76a72633b625d380582d9090c259b1fc
+    image: docker-registry.hlab.codepilot.cl/compose-deploy@sha256:7b148862ee3bb34c9a196f219d1ae1879cf775a7d9182c99507fd96d402ae957
     environment:
       APP_NAME: localcypher
       IMAGE: docker-registry.hlab.codepilot.cl/localcypher
