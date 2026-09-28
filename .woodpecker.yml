@@ -12,7 +12,7 @@ steps:
       tags: [latest, "${CI_COMMIT_SHA}"]
 
   deploy-apps:
-    image: docker-registry.hlab.codepilot.cl/compose-deploy:2
+    image: docker-registry.hlab.codepilot.cl/compose-deploy:3
     environment:
       APP_NAME: localcypher
       IMAGE: docker-registry.hlab.codepilot.cl/localcypher
